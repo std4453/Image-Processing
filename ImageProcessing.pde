@@ -5,7 +5,8 @@ public ImageProcessing() {
   Registry.instance.register("mosaic", new EntryMosaic("flowers3.png", this.ui));
   Registry.instance.register("halftone", new EntryHalftone("flowers3.png", this.ui));
   Registry.instance.register("circles", new EntryCircles("faster-than-anyone.png", this.ui));
-  this.ui.setContent(Registry.instance.query("circles"));
+  Registry.instance.register("fill", new EntryFill("faster-than-anyone.png", this.ui));
+  this.ui.setContent(Registry.instance.query("fill"));
 }
 
 void setup() { ui.onSetup(); }
