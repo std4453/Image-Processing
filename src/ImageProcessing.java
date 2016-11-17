@@ -13,8 +13,8 @@ public class ImageProcessing extends PApplet {
 		Registry.instance.register("circles",
 				new EntryCircles("images/faster-than-anyone.png", this.ui));
 		Registry.instance.register("fill",
-				new EntryFill("images/faster-than-anyone.png", this.ui));
-		this.ui.setContent(Registry.instance.query("mosaic"));
+				new EntryFill("images/elder2.png", this.ui));
+		this.ui.setContent(Registry.instance.query("fill"));
 	}
 
 	@Override

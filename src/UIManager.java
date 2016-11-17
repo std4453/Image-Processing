@@ -61,6 +61,10 @@ public class UIManager {
 		this.windowHeight = height + 34;
 		this.applet.getSurface().setSize(this.windowWidth, this.windowHeight);
 
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		this.applet.getSurface().setLocation((screenSize.width - this.windowWidth) / 2,
+				(screenSize.height - this.windowHeight) / 2);
+
 		this.updateWidgetsLayout();
 	}
 
