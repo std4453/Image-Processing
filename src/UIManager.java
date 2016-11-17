@@ -174,13 +174,13 @@ public class UIManager {
 		private final Component PLACEHOLDER_COMPONENT = new Frame();
 
 		private java.awt.event.MouseEvent createMouseEvent(int x, int y) {
-			return new java.awt.event.MouseEvent(this.PLACEHOLDER_COMPONENT, 0, 0L, 0, x, y, 0,
-					false);
+			return new java.awt.event.MouseEvent(this.PLACEHOLDER_COMPONENT,
+					0, 0L, 0, x, y, 0, false);
 		}
 
 		private java.awt.event.MouseEvent createMouseEvent(int x, int y, int button) {
-			return new java.awt.event.MouseEvent(this.PLACEHOLDER_COMPONENT, 0, 0L, 0, x, y, 0,
-					false, button);
+			return new java.awt.event.MouseEvent(this.PLACEHOLDER_COMPONENT,
+					0, 0L, 0, x, y, 0, false, button);
 		}
 	}
 }
