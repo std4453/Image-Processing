@@ -5,9 +5,9 @@ public static class EntryFill implements Entry {
   // Maybe I'll modify the other files one day.
   
   protected int attempts = 10000;
-  protected float maxSize = 50;
+  protected float maxSize = 100;
   
-  protected float iterScale = 0.95;
+  protected float iterScale = 0.9;
   protected float minScale = 0.05;
   
   private static final int SHAPETYPE_CIRCLE = 0;
