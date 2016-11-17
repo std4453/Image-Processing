@@ -2,144 +2,105 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 public class EntryHalftone implements Entry {
-	private class Context {
-		public double spacing = 6;
-		public double angle = 0;
-		public boolean circle = true;
-		public boolean rounded = false;
-		public boolean colored = false;
-		public boolean scatter = true;
+	public double spacing = 6;
+	public double angle = 0;
+	public boolean circle = true;
+	public boolean rounded = false;
+	public boolean colored = false;
+	public boolean scatter = true;
 
-		public boolean clip = true;
-		public int dx = 0, dy = 0;
+	public boolean clip = true;
+	public int dx = 0, dy = 0;
 
-		public int lumType = LUMTYPE_AVERAGE;
-		public static final int LUMTYPE_BRIGHTNESS = 0;
-		public static final int LUMTYPE_AVERAGE = 1;
-		public static final int LUMTYPE_RED = 2;
-		public static final int LUMTYPE_GREEN = 3;
-		public static final int LUMTYPE_BLUE = 4;
+	public int lumType = LUMTYPE_AVERAGE;
+	public static final int LUMTYPE_BRIGHTNESS = 0;
+	public static final int LUMTYPE_AVERAGE = 1;
+	public static final int LUMTYPE_RED = 2;
+	public static final int LUMTYPE_GREEN = 3;
+	public static final int LUMTYPE_BLUE = 4;
 
-		public String fileName;
-		public PImage image;
+	public String fileName;
+	public PImage image;
 
-		public UIManager ui;
-
-		public Context(String fileName, UIManager ui) {
-			this.fileName = fileName;
-			this.ui = ui;
-		}
-
-		public void setImage(PImage image) {
-			this.image = image;
-		}
-
-		public void setCircle(boolean circle) {
-			this.circle = circle;
-		}
-
-		public void setRounded(boolean rounded) {
-			this.rounded = rounded;
-		}
-
-		public void setColored(boolean colored) {
-			this.colored = colored;
-		}
-
-		public void setScatter(boolean scatter) {
-			this.scatter = scatter;
-		}
-
-		public void setDelta(int dx, int dy) {
-			this.dx = dx;
-			this.dy = dy;
-		}
-
-		public void setLumType(int lumType) {
-			this.lumType = lumType;
-		}
-	}
-
-	protected Context context;
+	public UIManager ui;
 
 	public EntryHalftone(String fileName, UIManager ui) {
-		this.context = new Context(fileName, ui);
+		this.fileName = fileName;
+		this.ui = ui;
 	}
 
 	@Override
 	public void setup() {
 		this.addControls();
 
-		this.context.setImage(this.context.ui.applet.loadImage(this.context.fileName));
-		this.context.ui.setCanvasSize(
-				this.context.image.width - (this.context.clip ? (int) (this.context.spacing * 2) : 0),
-				this.context.image.height - (this.context.clip ? (int) (this.context.spacing * 2) : 0));
-		if (this.context.clip)
-			this.context.setDelta(-(int) this.context.spacing,
-					-(int) this.context.spacing);
+		this.image = this.ui.applet.loadImage(this.fileName);
+		this.ui.setCanvasSize(
+				this.image.width - (this.clip ? (int) (this.spacing * 2) : 0),
+				this.image.height - (this.clip ? (int) (this.spacing * 2) : 0));
+		if (this.clip) {
+			this.dx = -(int) this.spacing;
+			this.dy = -(int) this.spacing;
+		}
 	}
 
 	protected Widget radio;
 
 	private void addControls() {
-		this.context.ui.addCheck("circle",
-				value -> EntryHalftone.this.context.setCircle(value),
-				this.context.circle);
-		this.context.ui.addCheck("rounded", value -> {
-			EntryHalftone.this.context.setRounded(value);
+		this.ui.addCheck("circle", value -> this.circle = value, this.circle);
+		this.ui.addCheck("rounded", value -> {
+			this.rounded = value;
 			EntryHalftone.this.radio.setEnabled(!value, 2);
-		}, this.context.rounded);
-		this.radio = this.context.ui.addRadio(
+		}, this.rounded);
+		this.radio = this.ui.addRadio(
 				new String[]{"grayscale", "colored", "scatter"},
 				value -> {
-					EntryHalftone.this.context.setScatter(false);
-					EntryHalftone.this.context.setColored(false);
+					this.scatter = this.colored = false;
 					switch (value) {
 						case 2:
-							EntryHalftone.this.context.setScatter(true);
+							this.scatter = true;
 							break;
 						case 1:
-							EntryHalftone.this.context.setColored(true);
+							this.colored = true;
 							break;
 					}
-				}, this.context.scatter ? 2 : this.context.colored ? 1 : 0);
+				}, this.scatter ? 2 : this.colored ? 1 : 0);
 	}
 
 	@Override
 	public void draw() {
-		PApplet applet = this.context.ui.applet;
-		PImage image = this.context.image;
+		PApplet applet = this.ui.applet;
+		PImage image = this.image;
 		applet.background(255);
 
 		applet.noStroke();
 		applet.fill(0);
 
-		double d = this.context.circle ? this.context.spacing * Math.sqrt(
-				4 / Math.PI) : this.context.spacing;
-		if (this.context.rounded) drawRoundedHalftone(image, d);
-		else if (this.context.scatter) {
+		double d = this.circle ? this.spacing * Math.sqrt(
+				4 / Math.PI) : this.spacing;
+		if (this.rounded) this.drawRoundedHalftone(image, d);
+		else if (this.scatter) {
 			applet.background(255);
 			applet.blendMode(PApplet.SUBTRACT);
 
 			applet.fill(255, 0, 0);
-			this.context.setLumType(Context.LUMTYPE_RED);
-			drawGridHalftone(image, this.context.angle, d);
+			this.lumType = LUMTYPE_RED;
+			this.drawGridHalftone(image, this.angle, d);
 
 			applet.fill(0, 255, 0);
-			this.context.setLumType(Context.LUMTYPE_GREEN);
-			drawGridHalftone(image, this.context.angle + 30, d);
+			this.lumType = LUMTYPE_GREEN;
+			this.drawGridHalftone(image, this.angle + 30, d);
 
 			applet.fill(0, 0, 255);
-			this.context.setLumType(Context.LUMTYPE_BLUE);
-			drawGridHalftone(image, this.context.angle + 105, d);
+			this.lumType = LUMTYPE_BLUE;
+			this.drawGridHalftone(image, this.angle + 105, d);
 
 			applet.blendMode(PApplet.BLEND);
-		} else drawGridHalftone(image, this.context.angle, d);
+		} else this.drawGridHalftone(image, this.angle, d);
 	}
 
 	private void drawRoundedHalftone(PImage image, double d) {
 		int width = image.width, height = image.height;
-		double spacing = this.context.spacing;
+		double spacing = this.spacing;
 
 		double maxDist = Math.sqrt(width * width + height * height);
 		for (double dist = 0; dist < maxDist; dist += spacing) {
@@ -156,7 +117,7 @@ public class EntryHalftone implements Entry {
 
 	private void drawGridHalftone(PImage image, double pAngle, double d) {
 		int width = image.width, height = image.height;
-		double spacing = this.context.spacing;
+		double spacing = this.spacing;
 
 		double maxDist = Math.sqrt(width * width + height * height);
 		for (double i = -maxDist / 2; i < maxDist / 2; i += spacing)
@@ -170,14 +131,14 @@ public class EntryHalftone implements Entry {
 	private void drawElement(PImage image, double dist, double angle, double d) {
 		double x = image.width / 2.0 + dist * Math.sin(
 				angle), y = image.height / 2.0 + dist * Math.cos(angle);
-		if (this.context.colored && !this.context.scatter)
-			this.context.ui.applet.fill(this.getColor(image, x, y));
+		if (this.colored && !this.scatter)
+			this.ui.applet.fill(this.getColor(image, x, y));
 		float diameter = (float) this.getDiameter(image, x, y, d);
-		if (this.context.circle)
-			this.context.ui.applet.ellipse(this.context.dx + (float) x,
-					this.context.dy + (float) y, diameter, diameter);
-		else this.context.ui.applet.rect(this.context.dx + (float) x - diameter / 2,
-				this.context.dy + (float) y - diameter / 2, diameter, diameter);
+		if (this.circle)
+			this.ui.applet.ellipse(this.dx + (float) x,
+					this.dy + (float) y, diameter, diameter);
+		else this.ui.applet.rect(this.dx + (float) x - diameter / 2,
+				this.dy + (float) y - diameter / 2, diameter, diameter);
 	}
 
 	private int getColor(PImage image, double x, double y) {
@@ -191,21 +152,21 @@ public class EntryHalftone implements Entry {
 		int ix = (int) x, iy = (int) y;
 		if (ix < 0 || iy < 0 || ix >= image.width || iy >= image.height)
 			return 0;
-		double lum = this.getLuminance(this.context.ui.applet, image.get(ix, iy));
+		double lum = this.getLuminance(this.ui.applet, image.get(ix, iy));
 		return d * Math.sqrt(1 - lum / 255);
 	}
 
 	private double getLuminance(PApplet applet, int c) {
-		switch (this.context.lumType) {
-			case Context.LUMTYPE_BRIGHTNESS:
+		switch (this.lumType) {
+			case LUMTYPE_BRIGHTNESS:
 				return applet.brightness(c);
-			case Context.LUMTYPE_AVERAGE:
+			case LUMTYPE_AVERAGE:
 				return (applet.red(c) + applet.green(c) + applet.blue(c)) / 3.0;
-			case Context.LUMTYPE_RED:
+			case LUMTYPE_RED:
 				return applet.red(c);
-			case Context.LUMTYPE_GREEN:
+			case LUMTYPE_GREEN:
 				return applet.green(c);
-			case Context.LUMTYPE_BLUE:
+			case LUMTYPE_BLUE:
 				return applet.blue(c);
 			default:
 				return 0;

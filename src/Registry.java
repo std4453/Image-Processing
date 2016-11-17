@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Registry {
-	private Map<String, Entry> mapping = new HashMap<String, Entry>();
+	private Map<String, Entry> mapping = new HashMap<>();
 
 	public Registry() {
 	}

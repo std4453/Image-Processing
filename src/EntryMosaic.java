@@ -2,96 +2,59 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 public class EntryMosaic implements Entry {
-	private class Context {
-		public boolean resize = true;
-		public boolean fade = false;
-		public boolean circle = true;
-		public boolean fill = true;
-		public boolean posterize = true;
-		public boolean posterized = false;
-		public int diamt = 8, spacing = 8;
+	public boolean resize = true;
+	public boolean fade = false;
+	public boolean circle = true;
+	public boolean fill = true;
+	public boolean posterize = true;
+	public boolean posterized = false;
+	public int diamt = 8, spacing = 8;
 
-		public String fileName = "";
-		public PImage image = null;
+	public String fileName = "";
+	public PImage image = null;
 
-		public UIManager ui;
+	public UIManager ui;
 
-		public Context(String fileName, UIManager ui) {
-			this.fileName = fileName;
-			this.ui = ui;
-		}
-
-		public void setImage(PImage image) {
-			this.image = image;
-		}
-
-		public void setResize(boolean resize) {
-			this.resize = resize;
-		}
-
-		public void setFade(boolean fade) {
-			this.fade = fade;
-		}
-
-		public void setCircle(boolean circle) {
-			this.circle = circle;
-		}
-
-		public void setPosterize(boolean posterize) {
-			this.posterize = posterize;
-		}
-
-		public void setPosterized(boolean posterized) {
-			this.posterized = posterized;
-		}
-	}
-
-	protected Context context;
-
-	public EntryMosaic(String fileName, UIManager applet) {
-		this.context = new Context(fileName, applet);
+	public EntryMosaic(String fileName, UIManager ui) {
+		this.fileName = fileName;
+		this.ui = ui;
 	}
 
 	@Override
 	public void setup() {
 		this.addControls();
 
-		this.context.setImage(this.context.ui.applet.loadImage(this.context.fileName));
+		this.image = this.ui.applet.loadImage(this.fileName);
 
-		boolean fill = this.context.fill;
-		int spacing = this.context.spacing;
-		this.context.ui.setCanvasSize(this.context.image.width - (fill ? spacing : 0),
-				this.context.image.height - (fill ? spacing : 0));
+		boolean fill = this.fill;
+		int spacing = this.spacing;
+		this.ui.setCanvasSize(this.image.width - (fill ? spacing : 0),
+				this.image.height - (fill ? spacing : 0));
 	}
 
 	private void addControls() {
-		this.context.ui.addCheck("resize",
-				value -> EntryMosaic.this.context.setResize(value), this.context.resize);
-		this.context.ui.addCheck("fade", value -> EntryMosaic.this.context.setFade(value),
-				this.context.fade);
-		this.context.ui.addCheck("circle",
-				value -> EntryMosaic.this.context.setCircle(value), this.context.circle);
-		this.context.ui.addCheck("posterize",
-				value -> EntryMosaic.this.context.setPosterize(value),
-				this.context.posterize);
+		this.ui.addCheck("resize", value -> this.resize = value, this.resize);
+		this.ui.addCheck("fade", value -> this.fade = value, this.fade);
+		this.ui.addCheck("circle", value -> this.circle = value, this.circle);
+		this.ui.addCheck("posterize", value -> this.posterize = value, this.posterize);
 	}
 
 	@Override
 	public void draw() {
-		PApplet applet = this.context.ui.applet;
+		PApplet applet = this.ui.applet;
 		applet.background(255);
 
-		if (this.context.posterize ^ this.context.posterized) {
-			PImage image = this.context.ui.applet.loadImage(this.context.fileName);
-			if (this.context.posterize)
+		if (this.posterize ^ this.posterized) {
+			PImage image = this.ui.applet.loadImage(this.fileName);
+			if (this.posterize)
 				image.filter(PApplet.POSTERIZE, 8);
-			this.context.setPosterized(this.context.posterize);
-			this.context.setImage(image);
+			this.posterized = this.posterize;
+			this.image = image;
 		}
 
-		boolean fill = this.context.fill, resize = this.context.resize, fade = this.context.fade, circle = this.context.circle;
-		int spacing = this.context.spacing, diamt = this.context.diamt;
-		int width = this.context.image.width, height = this.context.image.height;
+		boolean fill = this.fill, resize = this.resize, fade = this.fade, circle = this.circle;
+		int spacing = this.spacing, diamt = this.diamt;
+		int width = this.image.width, height = this.image.height;
 
 		int dx = fill ? -spacing / 2 : 0, dy = fill ? -spacing / 2 : 0;
 
@@ -100,7 +63,7 @@ public class EntryMosaic implements Entry {
 		int j0 = height % spacing / 2;
 		for (int i = i0; i < width; i += spacing) {
 			for (int j = j0; j < height; j += spacing) {
-				int c = this.context.image.get(i, j);
+				int c = this.image.get(i, j);
 
 				// set color
 				applet.fill(c);
@@ -112,7 +75,7 @@ public class EntryMosaic implements Entry {
 				float avg = (r + g + b) / 3.0f;
 
 				if (resize) {
-					// calc lumination
+					// calc illumination
 					float lum = (float) (1 - avg / 255.0f * 0.5);
 					diamt2 *= lum;
 				}

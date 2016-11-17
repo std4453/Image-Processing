@@ -14,31 +14,31 @@ public class ImageProcessing extends PApplet {
 				new EntryCircles("images/faster-than-anyone.png", this.ui));
 		Registry.instance.register("fill",
 				new EntryFill("images/faster-than-anyone.png", this.ui));
-		this.ui.setContent(Registry.instance.query("fill"));
+		this.ui.setContent(Registry.instance.query("mosaic"));
 	}
 
 	@Override
 	public void setup() {
-		ui.onSetup();
+		this.ui.onSetup();
 	}
 
 	@Override
 	public void draw() {
-		ui.onDraw();
+		this.ui.onDraw();
 	}
 
 	@Override
 	public void mouseMoved() {
-		ui.onMouseMoved();
+		this.ui.onMouseMoved();
 	}
 
 	@Override
 	public void mousePressed() {
-		ui.onMouseDown();
+		this.ui.onMouseDown();
 	}
 
 	@Override
 	public void mouseReleased() {
-		ui.onMouseUp();
+		this.ui.onMouseUp();
 	}
 }

@@ -6,11 +6,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class EntryFill implements Entry {
-	// I really don't know why I have decided to create a internal class named Context.
-	// It is singleton-moded and almost java-bean-like, and, in short, completely unnecessary.
-	// Anyway I'm abandoning it, storing all the data in the implementation of Entry
-	// Maybe I'll modify the other files one day.
-
 	protected int attempts = 10000;
 	protected float maxSize = 100;
 
@@ -45,10 +40,10 @@ public class EntryFill implements Entry {
 		this.image = applet.loadImage(this.fileName);
 		this.image.filter(PApplet.THRESHOLD, 0.5f);
 		this.image.filter(PApplet.INVERT);
-		this.ui.setCanvasSize(image.width, image.height);
+		this.ui.setCanvasSize(this.image.width, this.image.height);
 
 		this.canvas = applet.getGraphics();
-		this.overlap = applet.createGraphics(image.width, image.height);
+		this.overlap = applet.createGraphics(this.image.width, this.image.height);
 		this.overlap.beginDraw();
 
 		this.random = new Random();
@@ -76,17 +71,14 @@ public class EntryFill implements Entry {
 		float x, y;
 		int choice = 0;
 		int shapesCount = this.shapes.size();
-		for (int i = 0; i < attempts; ++i) {
-			x = random.nextFloat() * this.image.width;
-			y = random.nextFloat() * this.image.height;
+		for (int i = 0; i < this.attempts; ++i) {
+			x = this.random.nextFloat() * this.image.width;
+			y = this.random.nextFloat() * this.image.height;
 			if (shapesCount > 0)
-				choice = random.nextInt(shapesCount);
+				choice = this.random.nextInt(shapesCount);
 
 			this.tryPosition(x, y, this.shapes.get(choice));
 		}
-
-		//this.overlap.endDraw();
-		//this.canvas.image(this.overlap, 0, 0);
 	}
 
 	private void initCanvas(PGraphics canvas, boolean text) {
@@ -99,7 +91,6 @@ public class EntryFill implements Entry {
 		if (text) {
 			canvas.textAlign(PApplet.CENTER, PApplet.CENTER);
 			// use default font for now
-			// canvas.textFont(...);
 		}
 	}
 
@@ -175,5 +166,4 @@ public class EntryFill implements Entry {
 						return false;
 		return true;
 	}
-
 }
