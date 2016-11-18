@@ -14,6 +14,7 @@ public class UIManager {
 	protected boolean redrawRequested, redrawWidgetsRequested;
 	protected int canvasWidth, canvasHeight;
 	protected int windowWidth, windowHeight;
+	protected int widgetsSize;
 
 	// Model
 	protected Entry content;
@@ -55,17 +56,17 @@ public class UIManager {
 
 	// public methods
 	public void setCanvasSize(int width, int height) {
+		this.updateWidgetsLayout(width, height);
+
 		this.canvasWidth = width;
 		this.canvasHeight = height;
 		this.windowWidth = width;
-		this.windowHeight = height + 34;
+		this.windowHeight = height + this.widgetsSize;
 		this.applet.getSurface().setSize(this.windowWidth, this.windowHeight);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		this.applet.getSurface().setLocation((screenSize.width - this.windowWidth) / 2,
 				(screenSize.height - this.windowHeight) / 2);
-
-		this.updateWidgetsLayout();
 	}
 
 	public void requestRedraw() {
@@ -90,17 +91,34 @@ public class UIManager {
 		return widget;
 	}
 
-	private void updateWidgetsLayout() {
+	private void updateWidgetsLayout(int canvasWidth, int canvasHeight) {
+		if (this.widgets.isEmpty()) {
+			this.widgetsSize = 0;
+			return;
+		}
+
 		int padding = 10, spacing = 10;
-		int x = padding, y = this.canvasHeight + padding;
+		int x = padding, y = canvasHeight + padding;
+		int maxHeight = 0;
 		for (Widget widget : this.widgets) {
 			Dimension size = widget.getSize();
+
+			// check line break
+			maxHeight = Math.max(maxHeight, size.height);
+			if (size.width + x + padding > canvasWidth) {
+				x = padding;
+				y += maxHeight + spacing;
+				maxHeight = 0;
+			}
+
 			Point p = new Point(x, y);
 			widget.setLocation(p);
 			this.bounds.put(widget, new Rectangle(p, size));
 
 			x += size.width + spacing;
 		}
+
+		this.widgetsSize = y + maxHeight + padding - canvasHeight;
 	}
 
 	private void drawWidgets() {
