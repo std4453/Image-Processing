@@ -4,10 +4,19 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.util.Arrays;
 
+/**
+ * Implementation of radio widget
+ */
 public class RadioWidget implements Widget {
 	// View-related fields
 	private Point position;
+	/**
+	 * which radio button is hovered / pressed
+	 */
 	private int mouseOver = -1, mouseDown = -1;
+	/**
+	 * whether each radio is enabled
+	 */
 	private boolean[] enabled;
 
 	// Model-related fields
@@ -38,32 +47,37 @@ public class RadioWidget implements Widget {
 		int x = this.position.x, y = this.position.y;
 
 		for (int i = 0; i < this.length; ++i) {
+			// draw circle
 			applet.noFill();
 			applet.stroke(this.enabled[i] ? 0 : 100);
 			applet.ellipse(x + 7, y + 7, 14, 14);
 
-			if (this.choice == i) {
+			if (this.choice == i) {    // if chosen
+				// draw center circle
 				applet.noStroke();
 				applet.fill(this.enabled[i] ? 0 : 100);
 				applet.ellipse(x + 7.5f, y + 7.5f, 6, 6);
 			}
 
-			if (!this.enabled[i]) {
+			// draw overlay
+			if (!this.enabled[i]) {    // if disabled
 				applet.noStroke();
 				applet.fill(0, 30);
 				applet.ellipse(x + 7, y + 7, 14, 14);
-			} else if (this.mouseOver == i || this.mouseDown == i) {
+			} else if (this.mouseOver == i || this.mouseDown == i) { // hovered / pressed
 				applet.noStroke();
 				applet.fill(0, this.mouseDown == i ? 100 : 50);
 				applet.ellipse(x + 7, y + 7, 14, 14);
 			}
 
+			// draw label text
 			applet.noStroke();
 			applet.fill(this.enabled[i] ? 0 : 100);
 			applet.textAlign(PApplet.LEFT, PApplet.BOTTOM);
 			applet.textSize(12);
 			applet.text(this.labels[i], x + 18, y + 13);
 
+			// increase x
 			x += 14 + 4 + applet.textWidth(this.labels[i]) + 10;
 		}
 	}
@@ -80,6 +94,10 @@ public class RadioWidget implements Widget {
 		this.ui.requestRedraw();
 	}
 
+	/**
+	 * @param params
+	 * 		params[0] = index of item to be enabled / disabled
+	 */
 	public void setEnabled(boolean enabled, Object... params) {
 		if (params.length == 0 || !(params[0] instanceof Integer))
 			return;
@@ -98,6 +116,8 @@ public class RadioWidget implements Widget {
 	}
 
 	public void setLocation(Point position) {
+		// update items layout
+
 		this.position = new Point(position);
 		PApplet applet = this.ui.applet;
 		applet.textSize(12);
@@ -105,6 +125,8 @@ public class RadioWidget implements Widget {
 		for (int i = 0; i < this.length; ++i) {
 			int width = 18 + (int) applet.textWidth(this.labels[i]);
 			final int ii = i;
+
+			// listen pointer event
 			this.ui.listen(new Rectangle(x, position.y, width, 14), new MouseAdapter() {
 				@Override
 				public void mouseEntered(java.awt.event.MouseEvent unused) {

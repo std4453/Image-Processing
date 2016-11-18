@@ -5,12 +5,21 @@ public class EntryMosaic implements Entry {
 	public boolean resize = true;
 	public boolean fade = false;
 	public boolean circle = true;
+	/** fill is similiar to {@link EntryHalftone#clip} */
 	public boolean fill = true;
+
 	public boolean posterize = true;
+	/**
+	 * delayed, represents whether the current image is posterized.
+	 * As the posterization and de-posterization requires the image to be loaded again,
+	 * we want it to load it in draw() ( as not to stuck UI thread )
+	 */
 	public boolean posterized = false;
+
+	/** magic numbers */
 	public int diamt = 8, spacing = 8;
 
-	public String fileName = "";
+	public String fileName;
 	public PImage image = null;
 
 	public UIManager ui;

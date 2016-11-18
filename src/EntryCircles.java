@@ -15,7 +15,9 @@ public class EntryCircles implements Entry {
 	public int iterAttempts = 50;
 	public float size = 120;
 
+	// text strings
 	public String[] texts = new String[]{"S", "I", "M", "P", "L", "E"};
+	// rotate shapes, this field is respected only when shapeType is SHAPETYPE_TEXTS
 	public boolean rotate = true;
 
 	public static final int SHAPETYPE_CIRCLE = 0;
@@ -45,6 +47,7 @@ public class EntryCircles implements Entry {
 		PApplet applet = this.ui.applet;
 
 		this.image = applet.loadImage(this.fileName);
+		// TODO: resolve magic number using a scroll bar
 		this.image.filter(PApplet.THRESHOLD, 0.65f);
 		this.image.filter(PApplet.INVERT);
 
@@ -57,6 +60,7 @@ public class EntryCircles implements Entry {
 		this.ui.addRadio(new String[]{"circle", "rect", "texts", "hex"},
 				value -> {
 					this.shapeType = value;
+					// rotate is enabled only when shapeType is SHAPETYPE_TEXTS
 					this.rotateCheck.setEnabled(value == SHAPETYPE_TEXTS);
 				}, this.shapeType);
 		this.rotateCheck = this.ui.addCheck("rotate",
@@ -73,6 +77,7 @@ public class EntryCircles implements Entry {
 
 		int attempts = this.startAttempts;
 		for (float size = 1; size > this.threshold; size *= this.iterRatio) {
+			// render shapes to offscreen canvases
 			Map.Entry[] targets = this.buildTargets(applet, this.size * size);
 
 			for (int i = 0; i < attempts; ++i) {
@@ -100,13 +105,13 @@ public class EntryCircles implements Entry {
 
 	private void drawScaled(PGraphics canvas, PImage image, float x, float y,
 							float angle) {
-		if (angle != 0) {
+		if (angle != 0) {    // rotated text
 			canvas.pushMatrix();
 			canvas.translate(x, y);
 			canvas.rotate(angle);
 			canvas.image(image, 0, 0);
 			canvas.popMatrix();
-		} else
+		} else    // non-text, save the effort of matrix manipulation
 			canvas.image(image, x, y);
 	}
 
@@ -134,6 +139,7 @@ public class EntryCircles implements Entry {
 			case SHAPETYPE_TEXTS:
 				PFont font = applet.createFont("DIN Black", size);
 
+				// use a temporary canvas to determine text width
 				PGraphics tmp = applet.createGraphics(1, 1);
 				tmp.beginDraw();
 				tmp.textFont(font);
@@ -144,6 +150,10 @@ public class EntryCircles implements Entry {
 				for (int i = 0; i < this.texts.length; ++i) {
 					float textWidth = tmp.textWidth(this.texts[i]);
 					if ((int) textWidth != 0) {
+						// creating a canvas with width 0 will result in an error
+						// so in case of very small text size, ignore it completely
+
+						// canvas height is doubled because of ascend and descend part
 						canvas = this.initGraphics(applet.createGraphics((int) textWidth,
 								(int) (Math.ceil(size * 2))), true);
 						canvas.textFont(font);
@@ -162,6 +172,7 @@ public class EntryCircles implements Entry {
 				canvas = this.initGraphics(applet.createGraphics((int) (Math.ceil(size)),
 						(int) (Math.ceil(size))), true);
 				canvas.beginShape();
+				// use a loop to generate vertices
 				for (int i = 0; i < 6; ++i)
 					canvas.vertex(
 							halfSize + (float) (halfSize * Math.cos(Math.PI / 3 * i)),
@@ -177,6 +188,9 @@ public class EntryCircles implements Entry {
 		}
 	}
 
+	/**
+	 * Do some common operations on a newly-generated PGraphics
+	 */
 	private PGraphics initGraphics(PGraphics graphics, boolean offscreen) {
 		if (offscreen)
 			graphics.beginDraw();
@@ -186,29 +200,34 @@ public class EntryCircles implements Entry {
 		return graphics;
 	}
 
+	/** to shorten code */
 	private int round(double n) {
 		return (int) Math.round(n);
 	}
 
 	private boolean fits(PGraphics range, PGraphics target, PImage image, float x,
 						 float y, Rectangle rect, double angle) {
-		int x0 = rect.x, x1 = x0 + rect.width, y0 = rect.y, y1 = y0 + rect.height, ix = this
-				.round(
-						x), iy = this.round(y);
+		int x0 = rect.x, x1 = x0 + rect.width, y0 = rect.y, y1 = y0 + rect.height,
+				ix = this.round(x), iy = this.round(y);
+
+		// checks all the non-transparent pixels in the shape
 		for (int i = x0; i < x1; ++i)
 			for (int j = y0; j < y1; ++j)
 				if (target.get(i, j) != 0x00FFFFFF) {
 					int xx = ix + i, yy = iy + j;
-					if (angle != 0) {
+					if (angle != 0) {    // rotate shape
 						double length = Math.sqrt(i * i + j * j);
 						double da = Math.atan2(j, i);
 						xx = ix + (int) Math.round(length * Math.cos(da + angle));
 						yy = iy + (int) Math.round(length * Math.sin(da + angle));
 					}
-					if (image.get(xx, yy) != 0xFFFFFFFF || range.get(xx,
-							yy) != 0xFFFFFFFF)
+
+					// if another shape already exists or overlaps with the image
+					if (image.get(xx, yy) != 0xFFFFFFFF ||
+							range.get(xx, yy) != 0xFFFFFFFF)
 						return false;
 				}
+
 		return true;
 	}
 }

@@ -1,7 +1,7 @@
 import processing.core.PApplet;
 
 /**
- *
+ * {@link UIManager} test
  */
 public class UIManagerTest implements Entry {
 	private UIManager ui;
@@ -12,6 +12,7 @@ public class UIManagerTest implements Entry {
 
 	@Override
 	public void setup() {
+		// test line wrapping
 		this.ui.addCheck("someLongLabel1", null, true);
 		this.ui.addCheck("someLongLabel2", null, true);
 		this.ui.addRadio(new String[]{"one", "two", "three"}, null, 0);

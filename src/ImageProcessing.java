@@ -1,11 +1,16 @@
 import processing.core.PApplet;
 
+/**
+ * PApplet implementation, acts as the real program entry.
+ */
 public class ImageProcessing extends PApplet {
-
-	UIManager ui;
+	private UIManager ui;
 
 	public ImageProcessing() {
 		this.ui = new UIManager(this);
+
+		// register all entries
+		// effects
 		Registry.instance.register("mosaic",
 				new EntryMosaic("images/flowers3.png", this.ui));
 		Registry.instance.register("halftone",
@@ -15,9 +20,12 @@ public class ImageProcessing extends PApplet {
 		Registry.instance.register("fill",
 				new EntryFill("images/elder2.png", this.ui));
 
+		// tests
 		Registry.instance.register("uiManagerTest",
 				new UIManagerTest(this.ui));
-		this.ui.setContent(Registry.instance.query("uiManagerTest"));
+
+		// entry
+		this.ui.setContent(Registry.instance.query("halftone"));
 	}
 
 	@Override

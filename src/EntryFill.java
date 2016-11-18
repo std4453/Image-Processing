@@ -38,11 +38,13 @@ public class EntryFill implements Entry {
 
 		PApplet applet = this.ui.applet;
 		this.image = applet.loadImage(this.fileName);
+		// default: 0.5f
 		this.image.filter(PApplet.THRESHOLD, 0.5f);
 		this.image.filter(PApplet.INVERT);
 		this.ui.setCanvasSize(this.image.width, this.image.height);
 
 		this.canvas = applet.getGraphics();
+		// create overlap canvas
 		this.overlap = applet.createGraphics(this.image.width, this.image.height);
 		this.overlap.beginDraw();
 
@@ -50,7 +52,7 @@ public class EntryFill implements Entry {
 	}
 
 	private void addControls() {
-		this.ui.addRadio(new String[]{"circles", "rects", "hexagons"},
+		this.ui.addRadio(new String[]{"circles", "quads", "hexagons"},
 				value -> {
 					EntryFill.this.shapeType = value;
 					EntryFill.this.shapesNeedRedraw = true;
@@ -60,7 +62,7 @@ public class EntryFill implements Entry {
 	@Override
 	public void draw() {
 		this.canvas.background(255);
-		this.overlap.beginDraw();
+		// draw image to overlap
 		this.overlap.image(this.image, 0, 0);
 
 		if (this.shapesNeedRedraw) {
@@ -72,6 +74,7 @@ public class EntryFill implements Entry {
 		int choice = 0;
 		int shapesCount = this.shapes.size();
 		for (int i = 0; i < this.attempts; ++i) {
+			// choose random position
 			x = this.random.nextFloat() * this.image.width;
 			y = this.random.nextFloat() * this.image.height;
 			if (shapesCount > 0)
@@ -81,6 +84,9 @@ public class EntryFill implements Entry {
 		}
 	}
 
+	/**
+	 * Some common operations
+	 */
 	private void initCanvas(PGraphics canvas, boolean text) {
 		canvas.beginDraw();
 		canvas.background(255, 0);
@@ -113,6 +119,7 @@ public class EntryFill implements Entry {
 				canvas.endDraw();
 				this.shapes.add(canvas);
 				break;
+
 			case SHAPETYPE_RECT:
 				canvas = applet.createGraphics(isize, isize);
 				this.initCanvas(canvas);
@@ -120,13 +127,16 @@ public class EntryFill implements Entry {
 				canvas.endDraw();
 				this.shapes.add(canvas);
 				break;
+
 			case SHAPETYPE_HEXAGON:
+				// calc precise height
 				float height = (float) (size * Math.sqrt(3) / 2);
 				int iheight = (int) Math.ceil(height);
 				canvas = applet.createGraphics(isize, iheight);
 				this.initCanvas(canvas);
 				float dx = isize / 2f, dy = iheight / 2f;
 				canvas.beginShape();
+				// use a loop to generate all vertices
 				for (int i = 0; i < 6; ++i)
 					canvas.vertex((float) (dx + size / 2 * Math.cos(Math.PI / 3 * i)),
 							(float) (dy + size / 2 * Math.sin(Math.PI / 3 * i)));
@@ -140,6 +150,8 @@ public class EntryFill implements Entry {
 	private void tryPosition(float x, float y, PGraphics shape) {
 		for (float scale = 1; scale > this.minScale; scale *= this.iterScale)
 			if (this.checkSpace(x, y, shape, scale)) {
+				// draw scaled shapes
+
 				this.overlap.pushMatrix();
 				this.overlap.translate(x, y);
 				this.overlap.scale(scale);
@@ -158,6 +170,9 @@ public class EntryFill implements Entry {
 
 	private boolean checkSpace(float x, float y, PGraphics shape, float scale) {
 		int width = shape.width, height = shape.height;
+
+		// go through all the pixels in the shape
+
 		for (int i = 0; i < width; ++i)
 			for (int j = 0; j < height; ++j)
 				if (shape.get(i, j) != 0x00FFFFFF)

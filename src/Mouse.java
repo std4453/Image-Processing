@@ -4,6 +4,8 @@ public class Mouse {
 	public static final int RIGHT_BUTTON = 2;
 
 	public static int translate(int rawButton) {
+		// raw button codes are get within Processing 3.0.2, they may be
+		// different in other versions and other operating systems.
 		switch (rawButton) {
 			case 37:
 				return LEFT_BUTTON;

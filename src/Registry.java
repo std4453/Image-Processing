@@ -1,6 +1,9 @@
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Simple registry of entries
+ */
 public class Registry {
 	private Map<String, Entry> mapping = new HashMap<>();
 
